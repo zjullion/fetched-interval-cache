@@ -1,0 +1,66 @@
+{
+  "env": {
+    "browser": true,
+    "node": true,
+    "jest": true,
+    "es6": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "project": "./tsconfig.json"
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/recommended",
+    "plugin:import/typescript",
+    "plugin:typescript-sort-keys/recommended"
+  ],
+  "plugins": [
+    "@typescript-eslint/eslint-plugin",
+    "eslint-plugin-import",
+    "only-warn",
+    "prefer-arrow",
+    "simple-import-sort",
+    "sort-destructure-keys",
+    "typescript-sort-keys"
+  ],
+  "rules": {
+    "@typescript-eslint/strict-boolean-expressions": [
+      "warn",
+      { "allowNullableObject": false, "allowNumber": false, "allowString": false }
+    ],
+    "arrow-parens": "warn",
+    "comma-dangle": ["warn", "always-multiline"],
+    "default-case-last": "warn",
+    "eqeqeq": [
+      "warn",
+      "always",
+      {
+        "null": "never"
+      }
+    ],
+    "implicit-arrow-linebreak": "warn",
+    "import/newline-after-import": "warn",
+    "max-len": ["warn", { "code": 120, "tabWidth": 2 }],
+    "no-else-return": "warn",
+    "no-use-before-define": "warn",
+    "prefer-arrow/prefer-arrow-functions": "warn",
+    "quotes": ["warn", "single", { "allowTemplateLiterals": true, "avoidEscape": true }],
+    "simple-import-sort/exports": "warn",
+    "simple-import-sort/imports": "warn",
+    "sort-destructure-keys/sort-destructure-keys": "warn",
+    "sort-keys": [
+      "warn",
+      "asc",
+      {
+        "allowLineSeparatedGroups": true,
+        "caseSensitive": true,
+        "natural": true
+      }
+    ],
+    "sort-vars": ["warn", { "ignoreCase": true }]
+  }
+}
