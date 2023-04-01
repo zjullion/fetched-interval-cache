@@ -1,8 +1,8 @@
 export default {
   collectCoverage: true,
-  collectCoverageFrom: ['src/**/**.{ts,tsx}'],
+  collectCoverageFrom: ['src/**/*.ts'],
   coverageDirectory: 'coverage',
-  coveragePathIgnorePatterns: ['fixture.ts', 'test.ts', 'jestHelpers.ts'],
+  coveragePathIgnorePatterns: ['fixture.ts', 'test.ts'],
   coverageThreshold: {
     global: {
       branches: 100,
@@ -12,5 +12,6 @@ export default {
     },
   },
   preset: 'ts-jest',
+  testMatch: ['**/**.test.ts'],
   verbose: true,
 }
