@@ -49,6 +49,18 @@ describe('FetchedIntervalCache', () => {
     cache.insertInterval(interval6to7, [])
   })
 
+  describe('makeCache', () => {
+    it('returns a cache as expected', () => {
+      const otherCache = FetchedIntervalCache.makeCache('id')
+      otherCache.insertInterval(interval23to28, entries23to28)
+      otherCache.insertInterval(interval0to5, entries0to5)
+      otherCache.insertInterval(interval10to15, [])
+      otherCache.insertInterval(interval6to7, [])
+
+      expect(JSON.stringify(cache)).toBe(JSON.stringify(otherCache))
+    })
+  })
+
   describe('getEntries()', () => {
     it('returns the entries and missing intervals in the interval provided', () => {
       expect(cache.getEntries(new IntegerInterval(0, 7))).toStrictEqual([data0to7])
