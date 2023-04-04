@@ -1,6 +1,9 @@
 name: Deploy package
 
-on: [pull_request]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   publish:

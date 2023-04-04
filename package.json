@@ -1,6 +1,6 @@
 {
   "name": "fetched-interval-cache",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "A cache for storing ordered query data fetched from a backend database.",
   "engines": {
     "node": ">=18",
