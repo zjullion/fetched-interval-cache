@@ -1,6 +1,6 @@
 **Issue:**
 
-[`<issue title here>`](https://github.com/zjullion/fetched-interval-cache/issues/`<issue number here>`)
+https://github.com/zjullion/fetched-interval-cache/issues/`<issue number here>`
 
 **Description:**
 
