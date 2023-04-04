@@ -1,0 +1,35 @@
+name: Validate code quality
+
+on: [pull_request]
+
+concurrency:
+  group: ${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+      - uses: actions/setup-node@v3
+        with:
+          cache: 'pnpm'
+          node-version: 18
+      - run: pnpm install
+      - name: Check typescript compilation
+        run: pnpm tsc
+      - name: Check formatting
+        if: success() || failure()
+        run: pnpm format:check
+      - name: Check linting
+        if: success() || failure()
+        run: pnpm lint
+      - name: Check for circular dependencies
+        if: success() || failure()
+        run: pnpm circular:check
+      - name: Run tests
+        if: success() || failure()
+        run: pnpm test

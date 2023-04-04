@@ -1,7 +1,7 @@
 {
   "name": "fetched-interval-cache",
   "version": "0.1.0",
-  "description": "A cache for storing ordered query data that was fetched from a backend database.",
+  "description": "A cache for storing ordered query data fetched from a backend database.",
   "engines": {
     "node": ">=18",
     "pnpm": ">=7"
@@ -24,11 +24,10 @@
   "scripts": {
     "build": "rm -rf dist && tsc --project tsconfig.build.json",
     "circular:check": "dpdm --exit-code circular:1 --warning false src/*",
-    "compile:check": "tsc",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",
     "lint": "eslint . --ignore-path .gitignore --max-warnings 0",
-    "validate:everything": "pnpm compile:check && pnpm format:check && pnpm lint && pnpm circular:check && pnpm test",
+    "validate:everything": "tsc && pnpm format:check && pnpm lint && pnpm circular:check && pnpm test",
     "test": "jest"
   },
   "devDependencies": {
