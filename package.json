@@ -1,12 +1,15 @@
 {
   "name": "fetched-interval-cache",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A cache for storing ordered query data fetched from a backend database.",
   "engines": {
     "node": ">=18",
     "pnpm": ">=7"
   },
   "main": "dist/index.js",
+  "files": [
+    "dist/**/*"
+  ],
   "author": "zjullion",
   "license": "MIT",
   "keywords": [
