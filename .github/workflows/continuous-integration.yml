@@ -1,0 +1,30 @@
+name: Validate pull request quality
+
+on: [pull_request]
+
+concurrency:
+  group: ${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+      - uses: actions/setup-node@v3
+        with:
+          cache: 'pnpm'
+          node-version: 18
+      - run: pnpm install
+      - run: pnpm tsc
+      - run: pnpm format:check
+        if: success() || failure()
+      - run: pnpm lint
+        if: success() || failure()
+      - run: pnpm circular:check
+        if: success() || failure()
+      - run: pnpm test
+        if: success() || failure()

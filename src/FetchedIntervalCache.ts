@@ -153,6 +153,15 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
     this._intervalFactory = intervalFactory
   }
 
+  public static makeCache<E>(
+    sortKey: IsValidAttribute<E, number>,
+  ): FetchedIntervalCache<E, number> {
+    return new FetchedIntervalCache(
+      sortKey,
+      (from: number, to: number) => new IntegerInterval(from, to),
+    )
+  }
+
   /**
    * Constructs a FetchedIntervalCache from a minified value. `entryUnminifier` should throw an
    * error if passed a malformed or invalid minified entry.
