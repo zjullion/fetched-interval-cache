@@ -1,4 +1,4 @@
-name: Validate code quality
+name: Validate pull request quality
 
 on: [pull_request]
 
@@ -19,17 +19,12 @@ jobs:
           cache: 'pnpm'
           node-version: 18
       - run: pnpm install
-      - name: Check typescript compilation
-        run: pnpm tsc
-      - name: Check formatting
+      - run: pnpm tsc
+      - run: pnpm format:check
         if: success() || failure()
-        run: pnpm format:check
-      - name: Check linting
+      - run: pnpm lint
         if: success() || failure()
-        run: pnpm lint
-      - name: Check for circular dependencies
+      - run: pnpm circular:check
         if: success() || failure()
-        run: pnpm circular:check
-      - name: Run tests
+      - run: pnpm test
         if: success() || failure()
-        run: pnpm test
