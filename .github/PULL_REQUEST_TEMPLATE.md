@@ -8,6 +8,6 @@
 
 **Checklist**
 
-- [] This PR is linked to an issue
-- [] All status checks are passing
-- [] The version in `package.json` updated
+- [ ] This PR is linked to an issue
+- [ ] All status checks are passing
+- [ ] The version in `package.json` is updated
