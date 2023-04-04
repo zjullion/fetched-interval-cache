@@ -20,7 +20,6 @@
     "url": "https://github.com/zjullion/fetched-interval-cache.git"
   },
   "homepage": "https://github.com/zjullion/fetched-interval-cache",
-
   "scripts": {
     "build": "rm -rf dist && tsc --project tsconfig.build.json",
     "circular:check": "dpdm --exit-code circular:1 --warning false src/*",
