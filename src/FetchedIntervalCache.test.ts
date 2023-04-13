@@ -61,6 +61,13 @@ describe('FetchedIntervalCache', () => {
     })
   })
 
+  describe('getNumIntervals() and getNumEntries()', () => {
+    it('returns the expected values', () => {
+      expect(cache.getNumIntervals()).toBe(3)
+      expect(cache.getNumEntries()).toBe(7)
+    })
+  })
+
   describe('getEntries()', () => {
     it('returns the entries and missing intervals in the interval provided', () => {
       expect(cache.getEntries(new IntegerInterval(0, 7))).toStrictEqual([data0to7])
@@ -160,9 +167,11 @@ describe('FetchedIntervalCache', () => {
       expect(cache.getEntries(interval16to20)).toStrictEqual([
         { interval: interval16to20, missing: true },
       ])
+      expect(cache.getNumIntervals()).toBe(3)
+      expect(cache.getNumEntries()).toBe(7)
     })
 
-    it('creates new intervals for entries that do not fit if `createInterval=true`', () => {
+    it('creates new intervals (or expands existing ones) for entries that do not fit if `createInterval=true`', () => {
       expect(cache.add(entries16to20[0], true)).toBe(true)
       expect(cache.add(entries3to13[2], true)).toBe(true)
 
@@ -172,6 +181,8 @@ describe('FetchedIntervalCache', () => {
         { entries: [entries16to20[0]], interval: new IntegerInterval(10, 16) },
         { interval: new IntegerInterval(17, 22), missing: true },
       ])
+      expect(cache.getNumIntervals()).toBe(3)
+      expect(cache.getNumEntries()).toBe(9)
     })
 
     it('adds new entries that fit an interval', () => {
@@ -183,6 +194,8 @@ describe('FetchedIntervalCache', () => {
         data8to9,
         { entries: [newEntry12], interval: data10to15.interval },
       ])
+      expect(cache.getNumIntervals()).toBe(3)
+      expect(cache.getNumEntries()).toBe(9)
     })
 
     it('does nothing if existing entries with the same value already exist', () => {
@@ -191,6 +204,8 @@ describe('FetchedIntervalCache', () => {
       expect(cache.getEntries(interval0to5)).toStrictEqual([
         { entries: entries0to5, interval: interval0to5 },
       ])
+      expect(cache.getNumIntervals()).toBe(3)
+      expect(cache.getNumEntries()).toBe(7)
     })
   })
 
@@ -208,6 +223,8 @@ describe('FetchedIntervalCache', () => {
         data10to15,
         data16to22,
       ])
+      expect(cache.getNumIntervals()).toBe(3)
+      expect(cache.getNumEntries()).toBe(7)
     })
 
     it('deletes the entry and returns the old entry if the entry existed', () => {
@@ -229,6 +246,8 @@ describe('FetchedIntervalCache', () => {
           interval: interval23to28,
         },
       ])
+      expect(cache.getNumIntervals()).toBe(3)
+      expect(cache.getNumEntries()).toBe(5)
 
       expect(cache.delete(0)).toBe(null)
       expect(cache.delete(entry28)).toBe(null)
@@ -249,6 +268,8 @@ describe('FetchedIntervalCache', () => {
         data10to15,
         data16to22,
       ])
+      expect(cache.getNumIntervals()).toBe(3)
+      expect(cache.getNumEntries()).toBe(7)
     })
 
     it('updates existing entries with the same value, and returns the old entry', () => {
@@ -270,6 +291,8 @@ describe('FetchedIntervalCache', () => {
           interval: interval23to28,
         },
       ])
+      expect(cache.getNumIntervals()).toBe(3)
+      expect(cache.getNumEntries()).toBe(7)
     })
   })
 
@@ -301,6 +324,8 @@ describe('FetchedIntervalCache', () => {
       cache.insertInterval(interval25to27, entries25to27)
 
       expect(cache.getEntries(new IntegerInterval(0, 28))).toStrictEqual(dataAfterInsert)
+      expect(cache.getNumIntervals()).toBe(2)
+      expect(cache.getNumEntries()).toBe(14)
     })
   })
 

@@ -42,6 +42,10 @@ class _FetchedInterval<E, N extends NumericValue = number> extends IntegerInterv
     this._entries = [...entries]
   }
 
+  get length() {
+    return this._entries.length
+  }
+
   add(entry: Immutable<E>): boolean {
     const insertLocation = this._findInsertLocation(this._entryValue(entry))
     if (!insertLocation.exists) {
@@ -194,6 +198,22 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
     })
 
     return cache
+  }
+
+  /**
+   * Returns the number of intervals in the cache.
+   */
+  public getNumIntervals() {
+    return this._intervals.length
+  }
+
+  /**
+   * Returns the number of entries in the cache.
+   */
+  public getNumEntries() {
+    let numEntries = 0
+    this._intervals.forEach((interval) => (numEntries += interval.length))
+    return numEntries
   }
 
   /**
