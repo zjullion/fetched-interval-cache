@@ -28,8 +28,6 @@ jobs:
         if: success() || failure()
       - run: pnpm test
         if: success() || failure()
-
-jobs:
   scan:
     runs-on: ubuntu-latest
     permissions:
