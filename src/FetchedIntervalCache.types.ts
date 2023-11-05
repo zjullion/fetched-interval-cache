@@ -13,16 +13,22 @@ export type IntervalFactory<N extends NumericValue = number> = (
  * An array indicating which intervals and entry are included in a `FetchedIntervalCache`, and
  * which intervals still need to be fetched.
  */
-export type IntervalData<E, N extends NumericValue = number> = Array<
-  | { entries: Array<Immutable<E>>; interval: IntegerInterval<N> }
+export type IntervalData<EntryType, N extends NumericValue = number> = Array<
+  | { entries: Array<Immutable<EntryType>>; interval: IntegerInterval<N> }
   | { interval: IntegerInterval<N>; missing: true }
 >
 
-export type IntervalDataCallback<E, N extends NumericValue = number> = (
-  data: IntervalData<E, N>,
+/**
+ * A callback / listener function that will be invoked when the associated interval changes.
+ */
+export type IntervalDataCallback<EntryType, N extends NumericValue = number> = (
+  data: IntervalData<EntryType, N>,
 ) => void
 
-export type SubsequentEntryData<E, N extends NumericValue = number> =
-  | { entry: Immutable<E> }
+/**
+ * Data returned by `getNextEntry()` and `getPreviousEntry`.
+ */
+export type SubsequentEntryData<EntryType, N extends NumericValue = number> =
+  | { entry: Immutable<EntryType> }
   | { missingInterval: IntegerInterval<N> }
   | { noValue: true }

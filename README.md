@@ -7,11 +7,11 @@
 In applications where a backend database stores ordered, unique data (such as timestamped data), the client will often fetch intervals of data. Consider the following scenario for a frontend (browser) client:
 
 1. Fetch all entries from March 5 to March 17.
-2. Next, fetch all entries from April 8 to April 13.
+2. Next, fetch all entries from March 22 to March 24.
 3. Next, fetch all entries from March 8 to March 12.
-4. Finally, fetch all entries from March 5 to April 13.
+4. Finally, fetch all entries from March 5 to March 24.
 
-Using a caching solution, _no_ backend query needs to be made for Step 3, and _only_ entries from March 18 to April 7 need to be fetched for Step 4 (which saves both network and database resources).
+Using a caching solution, _no_ backend query needs to be made for Step 3, and _only_ entries from March 18 to March 21 need to be fetched for Step 4 (which saves both network and database resources).
 
 ### Why not use an existing client-side cache / database?
 
@@ -50,16 +50,38 @@ pnpm add fetched-interval-cache
 
 ## Usage
 
+### Basic Example
+
 ```typescript
-import { FetchedIntervalCache } from 'fetched-interval-cache`
+import { FetchedIntervalCache, IntegerInterval } from './index'
 
 type Entry = {
-  key: number,
-  payload: any
+  key: number
+  payload: string
 }
 
-const soryKey = 'key'
-const cache = FetchedIntervalCache.makeCache<Entry>(key)
+const sortKey = 'key'
+const cache = FetchedIntervalCache.makeCache<Entry>(sortKey)
+
+// In a real application, this data would come from a query to a backend database
+const interval = new IntegerInterval(5, 11)
+const entries: Entry[] = [
+  { key: 6, payload: 'Payload for entry 6' },
+  { key: 10, payload: 'This is ten.' },
+  { key: 11, payload: 'Turn it up to 11!' },
+]
+
+cache.insertInterval(interval, entries)
 ```
 
-Entries and intervals in [FetchedIntervalCache](src/FetchedIntervalCache.ts) are sorted by `sortKey`.
+### Core Concepts
+
+An `IntegerInterval` is an immutable, inclusive, and discreet range between two integers - for example, `[5, 11]`. `IntegerIntervals` represent ranges that have been fetched from backend databases. These ranges could be unix timestamps, ids, etc.
+
+A `FetchedIntervalCache` is a collection of `IntegerIntervals` with appropriate entries associated with each interval. Ranges of entries can be added via `insertInterval()`. Individual entries can be modified via `add()`, `delete()`, and `update()`. The functions `getEntries()`, `getNextEntry()`, and `getPreviousEntry()` return the data stored in the cache. Callback functions can be subscribed to the cache via `addListener()`. These functions will be invoked whenever the data in the interval they are subscribed to changes.
+
+It is important to note that `-∞` and `∞` are valid from / to values for an `IntegerInterval`. Infinite values indicate that **all** possible entries in descending / ascending order (respectively) have been fetched. This ensures that additional queries to the backend database are not made when it is already clear that there is no more data to fetch.
+
+### Docs
+
+See https://zjullion.github.io/fetched-interval-cache/

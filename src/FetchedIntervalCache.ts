@@ -15,9 +15,9 @@ import {
 } from './util'
 
 /**
- * The index where a entry belongs in either a _FetchedInterval or a FetchedIntervalCache. If the
- * entry is already included in the FetchedIntervalCache, or if a entry with the exact value already
- * exists in the _FetchedInterval, `exists` is true. Otherwise, it is false.
+ * The index where a entry belongs in either a `_FetchedInterval` or a `FetchedIntervalCache`. If the
+ * entry is already included in the `FetchedIntervalCache`, or if a entry with the exact value already
+ * exists in the `_FetchedInterval`, `exists` is true. Otherwise, it is false.
  */
 type _InsertLocation = {
   exists: boolean
@@ -28,14 +28,14 @@ type _InsertLocation = {
  * A list of sorted, unique data over an inclusive interval. Sort values must be unique - entries
  * with identical sort values overwrite each other.
  */
-class _FetchedInterval<E, N extends NumericValue = number> extends IntegerInterval<N> {
-  private _entries: Array<Immutable<E>>
-  private _sortKey: IsValidAttribute<E, N>
+class _FetchedInterval<EntryType, N extends NumericValue = number> extends IntegerInterval<N> {
+  private _entries: Array<Immutable<EntryType>>
+  private _sortKey: IsValidAttribute<EntryType, N>
 
   constructor(
-    sortKey: IsValidAttribute<E, N>,
+    sortKey: IsValidAttribute<EntryType, N>,
     interval: IntegerInterval<N>,
-    entries: Array<Immutable<E>>,
+    entries: Array<Immutable<EntryType>>,
   ) {
     super(interval.from, interval.to)
     this._sortKey = sortKey
@@ -46,7 +46,7 @@ class _FetchedInterval<E, N extends NumericValue = number> extends IntegerInterv
     return this._entries.length
   }
 
-  add(entry: Immutable<E>): boolean {
+  add(entry: Immutable<EntryType>): boolean {
     const insertLocation = this._findInsertLocation(this._entryValue(entry))
     if (!insertLocation.exists) {
       this._entries.splice(insertLocation.index, 0, entry)
@@ -54,7 +54,7 @@ class _FetchedInterval<E, N extends NumericValue = number> extends IntegerInterv
     return !insertLocation.exists
   }
 
-  delete(entry: Immutable<E | N> | number): Immutable<E> | null {
+  delete(entry: Immutable<EntryType | N> | number): Immutable<EntryType> | null {
     const insertLocation = this._findInsertLocation(this._entryValue(entry))
     if (insertLocation.exists) {
       return this._entries.splice(insertLocation.index, 1)[0]
@@ -62,7 +62,7 @@ class _FetchedInterval<E, N extends NumericValue = number> extends IntegerInterv
     return null
   }
 
-  update(entry: Immutable<E>): Immutable<E> | null {
+  update(entry: Immutable<EntryType>): Immutable<EntryType> | null {
     const insertLocation = this._findInsertLocation(this._entryValue(entry))
     if (insertLocation.exists) {
       return this._entries.splice(insertLocation.index, 1, entry)[0]
@@ -74,7 +74,7 @@ class _FetchedInterval<E, N extends NumericValue = number> extends IntegerInterv
     from: Immutable<N> | number,
     to: Immutable<N> | number,
     remove = false,
-  ): Array<Immutable<E>> {
+  ): Array<Immutable<EntryType>> {
     if (this._entries.length === 0 || from > this.to || to < this.from) {
       return []
     }
@@ -90,7 +90,7 @@ class _FetchedInterval<E, N extends NumericValue = number> extends IntegerInterv
     )
   }
 
-  minify(minifier: Minifier<E>) {
+  minify(minifier: Minifier<EntryType>) {
     return {
       e: this._entries.map((entry) => minifier(entry)),
       f: this.from.valueOf(),
@@ -130,36 +130,44 @@ class _FetchedInterval<E, N extends NumericValue = number> extends IntegerInterv
     return { exists: false, index: minIndex }
   }
 
-  private _entryValue(entry: Immutable<E | N> | number): number {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- IsValidAttribute<E, N> makes this safe
+  private _entryValue(entry: Immutable<EntryType | N> | number): number {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- IsValidAttribute<EntryType, N> makes this safe
     const anyTypeEntry = entry as unknown as any
     return anyTypeEntry[this._sortKey]?.valueOf() ?? anyTypeEntry.valueOf()
   }
 }
 
 /**
- * A set of distinct (non-intersecting) IntegerIntervals, each containing sorted, unique data.
+ * A set of distinct (non-intersecting) `IntegerInterval`s, each containing sorted, unique data.
  * Each interval corresponds to one or more queries to a backend database.
  */
-export class FetchedIntervalCache<E, N extends NumericValue = number> {
+export class FetchedIntervalCache<EntryType, N extends NumericValue = number> {
   private _intervalFactory: IntervalFactory<N>
-  private _intervals: Array<_FetchedInterval<E, N>>
+  private _intervals: Array<_FetchedInterval<EntryType, N>>
   private _listeners: Array<{
-    callback: IntervalDataCallback<E, N>
+    callback: IntervalDataCallback<EntryType, N>
     interval: IntegerInterval<N>
   }>
-  private _sortKey: IsValidAttribute<E, N>
+  private _sortKey: IsValidAttribute<EntryType, N>
 
-  public constructor(sortKey: IsValidAttribute<E, N>, intervalFactory: IntervalFactory<N>) {
+  /**
+   * Constructs a new, empty `FetchedIntervalCache`. Entries will be sorted by the `sortKey` provided.
+   * This function requires an `IntervalFactory`, while `makeCache()` provides a default one that should be
+   * sufficient in most cases.
+   */
+  public constructor(sortKey: IsValidAttribute<EntryType, N>, intervalFactory: IntervalFactory<N>) {
     this._intervals = []
     this._listeners = []
     this._sortKey = sortKey
     this._intervalFactory = intervalFactory
   }
 
-  public static makeCache<E>(
-    sortKey: IsValidAttribute<E, number>,
-  ): FetchedIntervalCache<E, number> {
+  /**
+   * Returns a new, empty `FetchedIntervalCache`, with entries sorted by the `sortKey` provided.
+   */
+  public static makeCache<EntryType>(
+    sortKey: IsValidAttribute<EntryType, number>,
+  ): FetchedIntervalCache<EntryType, number> {
     return new FetchedIntervalCache(
       sortKey,
       (from: number, to: number) => new IntegerInterval(from, to),
@@ -170,13 +178,13 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
    * Constructs a FetchedIntervalCache from a minified value. `entryUnminifier` should throw an
    * error if passed a malformed or invalid minified entry.
    */
-  static unminify<E, N extends NumericValue = number>(
-    sortKey: IsValidAttribute<E, N>,
-    entryUnminifier: Unminifier<E>,
+  static unminify<EntryType, N extends NumericValue = number>(
+    sortKey: IsValidAttribute<EntryType, N>,
+    entryUnminifier: Unminifier<EntryType>,
     intervalFactory: IntervalFactory<N>,
     minified: Minified,
-  ): FetchedIntervalCache<E, N> {
-    const cache = new FetchedIntervalCache<E, N>(sortKey, intervalFactory)
+  ): FetchedIntervalCache<EntryType, N> {
+    const cache = new FetchedIntervalCache<EntryType, N>(sortKey, intervalFactory)
 
     if (!Array.isArray(minified)) {
       throw new Error('Cannot unminify FetchedIntervalCache: minified is not an array.')
@@ -190,7 +198,7 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
         try {
           const entries = e.map((entry: Minified) => entryUnminifier(entry))
           const interval = intervalFactory(f, t)
-          cache.insertInterval(interval, entries as Array<Immutable<E>>)
+          cache.insertInterval(interval, entries as Array<Immutable<EntryType>>)
         } catch (error) {
           throw new Error(`Cannot unminify FetchedIntervalCache: ${error}.`)
         }
@@ -222,7 +230,7 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
    * false otherwise (including if another entry with the same sort key value already exists).
    * Appropriate callback(s) are invoked if the entry is added.
    */
-  public add(entry: Immutable<E>, createInterval = false): boolean {
+  public add(entry: Immutable<EntryType>, createInterval = false): boolean {
     const insertLocation = this._findInsertLocation(this._entryValue(entry))
 
     if (!insertLocation.exists) {
@@ -251,7 +259,7 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
    * Deletes the entry. Returns the entry if it existed, and null otherwise. Appropriate
    * callback(s) are invoked if the entry is deleted.
    */
-  public delete(entry: Immutable<E | N | number>): Immutable<E> | null {
+  public delete(entry: Immutable<EntryType | N | number>): Immutable<EntryType> | null {
     const insertLocation = this._findInsertLocation(this._entryValue(entry))
     if (!insertLocation.exists) {
       return null
@@ -273,7 +281,7 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
    * Updates the entry if it exists in the cache. Returns the old entry if it existed, and null
    * otherwise. Appropriate callback(s) are invoked if the entry is updated.
    */
-  public update(entry: Immutable<E>): Immutable<E> | null {
+  public update(entry: Immutable<EntryType>): Immutable<EntryType> | null {
     const insertLocation = this._findInsertLocation(this._entryValue(entry))
     if (!insertLocation.exists) {
       return null
@@ -296,8 +304,8 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
    * the cache (these should be subsequently fetched from the backend, so that the requested
    * interval can be completely filled in).
    */
-  public getEntries(interval: IntegerInterval<N>): IntervalData<E, N> {
-    const intervalData: IntervalData<E, N> = []
+  public getEntries(interval: IntegerInterval<N>): IntervalData<EntryType, N> {
+    const intervalData: IntervalData<EntryType, N> = []
 
     this._iterateThroughIntervals(interval, {
       betweenIntervals: (emptyInterval) => {
@@ -322,7 +330,7 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
    * the entry if it is found. Returns `noValue` if all possible intervals have been fetched, and
    * no appropriate entry exists.
    */
-  public getNextEntry(value: Immutable<E | N> | number): SubsequentEntryData<E, N> {
+  public getNextEntry(value: Immutable<EntryType | N> | number): SubsequentEntryData<EntryType, N> {
     const entryValue = this._entryValue(value)
     const insertLocation = this._findInsertLocation(entryValue)
     const { exists, index } = insertLocation
@@ -337,7 +345,7 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
     const entries = interval.getEntries(entryValue, Number.POSITIVE_INFINITY)
 
     if (entries.length !== 0) {
-      return { entry: entries[0] as Immutable<E> }
+      return { entry: entries[0] as Immutable<EntryType> }
     } else if (interval.to.valueOf() === Number.POSITIVE_INFINITY) {
       return { noValue: true }
     }
@@ -353,7 +361,9 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
    * the entry if it is found. Returns `noValue` if all possible intervals have been fetched, and
    * no appropriate entry exists.
    */
-  public getPreviousEntry(value: Immutable<E | N> | number): SubsequentEntryData<E, N> {
+  public getPreviousEntry(
+    value: Immutable<EntryType | N> | number,
+  ): SubsequentEntryData<EntryType, N> {
     const entryValue = this._entryValue(value)
     const insertLocation = this._findInsertLocation(entryValue)
     const { exists, index } = insertLocation
@@ -368,7 +378,7 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
     const entries = interval.getEntries(Number.NEGATIVE_INFINITY, entryValue)
 
     if (entries.length !== 0) {
-      return { entry: entries[entries.length - 1] as Immutable<E> }
+      return { entry: entries[entries.length - 1] as Immutable<EntryType> }
     } else if (interval.from.valueOf() === Number.NEGATIVE_INFINITY) {
       return { noValue: true }
     }
@@ -384,7 +394,7 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
    * the `entries` have a duplicate sort value, or if any of the `entries` have a sort value
    * outside of the `insertInterval`. Appropriate callback(s) are invoked.
    */
-  public insertInterval(insertInterval: IntegerInterval<N>, entries: Array<Immutable<E>>) {
+  public insertInterval(insertInterval: IntegerInterval<N>, entries: Array<Immutable<EntryType>>) {
     if (entries.length !== 0) {
       let currentValue = this._entryValue(entries[0])
 
@@ -428,7 +438,7 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
 
     const searchInterval = this._intervalFactory(from, to)
     const newEntriesToInsert = new _FetchedInterval(this._sortKey, insertInterval, entries)
-    const updatedEntries: Array<Immutable<E>> = []
+    const updatedEntries: Array<Immutable<EntryType>> = []
     let numAbsorbedIntervals = 0
 
     this._iterateThroughIntervals(searchInterval, {
@@ -490,7 +500,7 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
    * whenever there are changes to the interval. Throws an error if the callback provided is
    * already subscribed to an interval.
    */
-  public addListener(interval: IntegerInterval<N>, callback: IntervalDataCallback<E, N>) {
+  public addListener(interval: IntegerInterval<N>, callback: IntervalDataCallback<EntryType, N>) {
     if (this._listeners.some((listener) => listener.callback === callback)) {
       throw new Error('A listener with the same callback already exists.')
     }
@@ -504,7 +514,7 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
    * "Unsubscribes" the given callback function. Returns true if the given callback was
    * "subscribed" to an inteval, and false otherwise.
    */
-  public removeListener(callback: IntervalDataCallback<E, N>) {
+  public removeListener(callback: IntervalDataCallback<EntryType, N>) {
     for (let listenerIndex = 0; listenerIndex < this._listeners.length; listenerIndex++) {
       if (this._listeners[listenerIndex].callback === callback) {
         this._listeners.splice(listenerIndex, 1)
@@ -517,7 +527,7 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
   /**
    * Minifies this cache, so that it is smaller for `JSON.stringify()` or database insertion.
    */
-  public minify(minifier: Minifier<E>) {
+  public minify(minifier: Minifier<EntryType>) {
     return this._intervals.map((interval) => interval.minify(minifier))
   }
 
@@ -572,7 +582,7 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
     iterationInterval: IntegerInterval<N>,
     actions: {
       betweenIntervals: (emptyInterval: IntegerInterval<N>) => void
-      inInterval: (entriesInterval: _FetchedInterval<E, N>) => void
+      inInterval: (entriesInterval: _FetchedInterval<EntryType, N>) => void
     },
   ) {
     let currentValue = iterationInterval.from.valueOf()
@@ -608,8 +618,8 @@ export class FetchedIntervalCache<E, N extends NumericValue = number> {
     } while (currentValue <= iterationInterval.to.valueOf())
   }
 
-  private _entryValue(entry: Immutable<E | N> | number): number {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- IsValidAttribute<E, N> makes this safe
+  private _entryValue(entry: Immutable<EntryType | N> | number): number {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- IsValidAttribute<EntryType, N> makes this safe
     const anyTypeEntry = entry as unknown as any
     return anyTypeEntry[this._sortKey]?.valueOf() ?? anyTypeEntry.valueOf()
   }

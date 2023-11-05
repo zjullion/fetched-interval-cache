@@ -8,6 +8,10 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
@@ -20,6 +24,14 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: pnpm install
       - run: pnpm build
-      - run: pnpm publish --no-git-checks
+      - run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.PUBLISH_NPM }}
+      - run: pnpm publish --no-git-checks
+      - run: pnpm typedoc src/index.ts
+      - uses: actions/upload-pages-artifact@v2
+        with:
+          path: ./docs
+      - uses: actions/deploy-pages@v2
+        with:
+          token: ${{ github.token }}

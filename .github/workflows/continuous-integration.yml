@@ -1,4 +1,4 @@
-name: Validate pull request quality
+name: PR Checks
 
 on: [pull_request]
 
@@ -28,3 +28,14 @@ jobs:
         if: success() || failure()
       - run: pnpm test
         if: success() || failure()
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: github/codeql-action/init@v2
+        with:
+          languages: javascript-typescript
+      - uses: github/codeql-action/analyze@v2
