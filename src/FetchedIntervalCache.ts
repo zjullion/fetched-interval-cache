@@ -118,9 +118,9 @@ class _FetchedInterval<E, N extends NumericValue = number> extends IntegerInterv
       const currentIndex = Math.floor((maxIndex + minIndex) / 2)
       const currentValue = this._entryValue(this._entries[currentIndex])
 
-      if (currentValue > searchValue) {
+      if (currentValue > searchValue.valueOf()) {
         maxIndex = currentIndex - 1
-      } else if (currentValue < searchValue) {
+      } else if (currentValue < searchValue.valueOf()) {
         minIndex = currentIndex + 1
       } else if (currentValue === searchValue) {
         return { exists: true, index: currentIndex }
