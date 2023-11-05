@@ -28,3 +28,10 @@ jobs:
         if: success() || failure()
       - run: pnpm test
         if: success() || failure()
+      - run: pnpm typedoc src/index.ts
+      - uses: actions/configure-pages@v2
+        with:
+          path: ./docs
+      - uses: actions/deploy-pages@v2
+        with:
+          token: ${{ github.token }}
