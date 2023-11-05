@@ -1,4 +1,4 @@
-name: Validate pull request quality and code security
+name: PR Checks
 
 on: [pull_request]
 
