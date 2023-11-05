@@ -1,6 +1,6 @@
 {
   "name": "fetched-interval-cache",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A cache for storing ordered query data fetched from a backend database.",
   "engines": {
     "node": ">=18",
@@ -33,21 +33,21 @@
     "test": "jest"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.0",
-    "@types/node": "^18.15.11",
-    "@typescript-eslint/eslint-plugin": "^5.57.0",
-    "@typescript-eslint/parser": "^5.57.0",
-    "dpdm": "^3.13.0",
-    "eslint": "^8.37.0",
-    "eslint-plugin-import": "^2.27.5",
+    "@types/jest": "^29.5.7",
+    "@types/node": "^18.18.8",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "dpdm": "^3.14.0",
+    "eslint": "^8.53.0",
+    "eslint-plugin-import": "^2.29.0",
     "eslint-plugin-only-warn": "^1.1.0",
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "eslint-plugin-simple-import-sort": "^8.0.0",
     "eslint-plugin-sort-destructure-keys": "^1.5.0",
     "eslint-plugin-typescript-sort-keys": "^2.3.0",
-    "jest": "^29.5.0",
-    "prettier": "^2.8.7",
-    "ts-jest": "^29.0.5",
+    "jest": "^29.7.0",
+    "prettier": "^2.8.8",
+    "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.5"
   }
