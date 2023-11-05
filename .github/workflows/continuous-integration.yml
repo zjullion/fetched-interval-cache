@@ -33,7 +33,7 @@ jobs:
       - run: pnpm test
         if: success() || failure()
       - run: pnpm typedoc src/index.ts
-      - uses: actions/configure-pages@v2
+      - uses: actions/upload-pages-artifact@v2
         with:
           path: ./docs
       - uses: actions/deploy-pages@v2
