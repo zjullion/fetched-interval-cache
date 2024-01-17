@@ -24,10 +24,9 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: pnpm install
       - run: pnpm build
-      - run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
+      - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.PUBLISH_NPM }}
-      - run: pnpm publish --no-git-checks
       - run: pnpm typedoc src/index.ts
       - uses: actions/upload-pages-artifact@v2
         with:
