@@ -84,4 +84,4 @@ It is important to note that `-∞` and `∞` are valid from / to values for an 
 
 ### Docs
 
-See https://zjullion.github.io/fetched-interval-cache/
+See [https://zjullion.github.io/fetched-interval-cache/](https://zjullion.github.io/fetched-interval-cache/)
