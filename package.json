@@ -3,8 +3,8 @@
   "version": "0.4.1",
   "description": "A cache for storing ordered query data fetched from a backend database.",
   "engines": {
-    "node": ">=18",
-    "pnpm": ">=7"
+    "node": ">=20",
+    "pnpm": ">=8"
   },
   "main": "dist/index.js",
   "files": [
